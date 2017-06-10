@@ -1,0 +1,286 @@
+Git Brown Bag 6/12/17
+
+Distributed Revision Control System
+under all the fancy stuff, its just a map (key, value)
+
+keys are SHA1, values are ???
+
+$ echo "apple pie" | git hash-object --stdin -w
+
+string was written in the repository, cat objects/[1st two chars of hash]/
+
+-----Simple WorkFlow----
+create new file, file is untracked, have to add it to the repository
+
+to add to repo: 
+	git add -A || git add shoesList.txt
+
+Commit added/changed files to the repo:
+	git commit -m "add shoe list and notes"
+
+Check log of commits:
+	git log
+
+-----What is a commit----
+$ git cat-file 48bee6762c2b98775592145d83ae5b1261820eac -p //sha1 of first commit
+tree 2b8962ebaad41e8d7c630bc65e83bda3f11fb85a
+author rdh <rdhjr81@gmail.com> 1496276519 -0400
+committer rdh <rdhjr81@gmail.com> 1496276519 -0400
+
+add shoe list and notes
+
+-What is the tree sha1? git cat-file it
+$ git cat-file 2b8962ebaad41e8d7c630bc65e83bda3f11fb85a -p
+100644 blob ef3f83c85362f539db4eef9e7e35bff7c865d540    brownBagNotes.txt
+100644 blob 9ff078e821629ee8e57e82dc499687ff4e441eda    shoes.txt
+
+-tree contains record of blobs added to the repo at this point in time
+
+----Add a directory to the repo----
+
+$ git cat-file 17a67e1e43a9798cd209d663fdaae18cdcef25d5 -p
+tree c2cc185a2a2c38c7d7447f687dde4c144e12274a 	
+parent 48bee6762c2b98775592145d83ae5b1261820eac		//this wasnt present in first commit
+author rdh <rdhjr81@gmail.com> 1496277483 -0400
+committer rdh <rdhjr81@gmail.com> 1496277483 -0400
+
+add shoe descriptions
+
+-Follow the tree sha1
+
+dt@DESKTOP-KOV2D67 MINGW64 ~/dev/gitBrownBag (master)
+$ git cat-file c2cc185a2a2c38c7d7447f687dde4c144e12274a -p
+100644 blob 737b5ce4593d9abf5ce0d4b30b4a0eafff569873    brownBagNotes.txt
+040000 tree ee3a9d43f5a7c2343ea76719be22fb60d7b5bd89    shoeDescriptions
+100644 blob 9ff078e821629ee8e57e82dc499687ff4e441eda    shoes.txt
+
+-cat the directory
+dt@DESKTOP-KOV2D67 MINGW64 ~/dev/gitBrownBag (master)
+$ git cat-file ee3a9d43f5a7c2343ea76719be22fb60d7b5bd89 -p
+100644 blob 3f459ee5cc7c442c82d4838bb4e5143ec033dfd1    airJordans.txt
+100644 blob 34b2c5dba2daa1d7b8b4c8454d147357c8b44e93    reebokPumps.txt
+
+----Change an Exisitng File----
+$ echo $'\nAdibas Gazelles' >> shoes.txt
+-add, commit etc
+
+commit 7a822f779d153c1e1ab7961b79ff8e6bf03602b3 (HEAD -> master)
+Author: rdh <rdhjr81@gmail.com>
+Date:   Wed May 31 21:10:39 2017 -0400
+
+    add gazelles
+
+-cat new commit
+$ git cat-file 63d6d06cb83ebd39a74c6c62bc66df008b62414d -p
+tree 82f30d617aed2617a9fe3d5084da4c81dde53a43 //new tree
+parent 17a67e1e43a9798cd209d663fdaae18cdcef25d5
+author rdh <rdhjr81@gmail.com> 1496278422 -0400
+committer rdh <rdhjr81@gmail.com> 1496278422 -0400
+
+add gazelles
+
+-cat new tree
+
+$ git cat-file 63d6d06cb83ebd39a74c6c62bc66df008b62414d -p
+tree 82f30d617aed2617a9fe3d5084da4c81dde53a43
+parent 17a67e1e43a9798cd209d663fdaae18cdcef25d5
+author rdh <rdhjr81@gmail.com> 1496278422 -0400
+committer rdh <rdhjr81@gmail.com> 1496278422 -0400
+
+add gazelles
+
+
+
+-----Git Commands----
+git init - inits repository
+
+git hash-object
+
+git cat-file [hash] -t (type) | -p (print)
+	$ git cat-file 7e89ca084ce8b7295a8e841eccaa699e689326c9 -t
+	$ git cat-file 7e89ca084ce8b7295a8e841eccaa699e689326c9 -p
+
+	
+-----Branches----
+git branch
+-lists all branches, '*' denotes current branch
+-we already have one branch 'master'
+
+-how does git keep track of the current branch?
+$ cat .git/HEAD
+ref: refs/heads/master
+
+-the current branch is indicated by the path/to/filename given by the 'ref' key
+
+
+-Where are the branches stored?
+$ cat .git/refs/heads/master
+d08f8794752dc241ef6df0ac95581c14360bb02f
+
+-what is that sha1?
+$ git log
+commit d08f8794752dc241ef6df0ac95581c14360bb02f (HEAD -> master)
+Author: rdh <rdhjr81@gmail.com>
+Date:   Wed May 31 21:24:47 2017 -0400
+
+    add change existing file section
+
+the branch 'master' is just a pointer to the latest commit
+
+-HEAD is a 'pointer' to a branch, branch is a pointer to a commit
+
+-create a new branch
+git branch prices
+
+$ cat .git/HEAD
+ref: refs/heads/prices
+
+-add some price data to the shoes list and add/commit
+
+$ cat .git/refs/heads/prices
+9925006f69f240423736635b103fa9915be1179b
+
+dt@DESKTOP-KOV2D67 MINGW64 ~/dev/gitBrownBag (prices)
+$ git log
+commit 9925006f69f240423736635b103fa9915be1179b (HEAD -> prices)
+Author: rdh <rdhjr81@gmail.com>
+Date:   Tue Jun 6 20:25:59 2017 -0400
+
+    add prices
+
+-HEAD points to prices and prices now points to commit 9925006f69f240423736635b103fa9915be1179b
+
+-add new file with coupons
+
+-----Merges----
+
+$ git merge prices
+Auto-merging shoes.txt
+CONFLICT (content): Merge conflict in shoes.txt
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git status
+On branch master
+You have unmerged paths.
+  (fix conflicts and run "git commit")
+  (use "git merge --abort" to abort the merge)
+
+Unmerged paths:
+  (use "git add <file>..." to mark resolution)
+
+        both modified:   shoes.txt
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+        modified:   brownBagNotes.txt
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+        coupons.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+dt@DESKTOP-KOV2D67 MINGW64 ~/dev/gitBrownBag (master|MERGING)
+$ git add shoes.txt
+
+-take a look at the log
+
+dt@DESKTOP-KOV2D67 MINGW64 ~/dev/gitBrownBag (master)
+$ git cat-file 0216b1cc4755c51aa7903613ccf6071d1f799b31 -p
+tree e2b668dc3ff3a6fc514ba22d0c7acca2e972ef19
+parent 063e2cddd7ecf6e5b6c3c240b2ec5a4220a86be6	//<--
+parent 2434a83f0123ea4b28b2158a9e3d16fdb771acb3 //<--
+author rdh <rdhjr81@gmail.com> 1496796610 -0400
+committer rdh <rdhjr81@gmail.com> 1496796610 -0400
+
+-merge is commit with two parents
+
+-----Detaching HEAD----
+-Go back in time to when things worked
+
+-add Saucony Grid 10 	99.99 in master and Sketchers CityWalkers 58.99 in prices
+=======
+$ git status
+HEAD detached at 003fca5
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+        coupons.txt
+
+nothing added to commit but untracked files present (use "git add" to track)
+
+-add a few lines to shoes.txt in detached head state
+-commit changes
+
+dt@DESKTOP-KOV2D67 MINGW64 ~/dev/gitBrownBag ((003fca5...))
+$ git commit -am "add notes from weekend stay at the Overlook lodge"
+[detached HEAD ba613a6] add notes from weekend stay at the Overlook lodge
+ 1 file changed, 83 insertions(+)
+
+ -commit did not occur in a particular branch
+ 
+ -leave detached state and return to 'master' branch
+ 
+ $ git checkout master
+Warning: you are leaving 1 commit behind, not connected to
+any of your branches:
+
+  ba613a6 add notes from weekend stay at the Overlook lodge
+
+If you want to keep it by creating a new branch, this may be a good time
+to do so with:
+
+ git branch <new-branch-name> ba613a6
+
+Switched to branch 'master'
+
+-uh oh, how do we get back? Still have the commit's SHA1
+
+$ git branch OverLook_Edition
+
+-----Rebasing----
+
+-What is it?
+-Rebasing is a way to 'combine' 2 branches.
+-diff from merge? 
+-merge is a commit with 2 parents
+-rebase will move commits from branch being rebases to the end of the branch that is doing
+the rebasing. also moves the branch to the latest commit to the ast commit of the rebased branch
+-old commits still exists but the commits are copied to the end of the branch you are currently in
+-git has garbage collection
+-will delete commits that are no longer unreachable (no branch)
+-benefits of merging
+	preserves commit history, but it gets complex
+-benefits of rebasing
+	simple, linear history
+	
+-----Tags----
+-stored in .get/refs/tags
+-1 of 4 objs in git db (commit, tree blob, tag)
+-2 types of tags
+	annotated git tag -a [tag name]
+		is a tag option
+	non-annotated tags git tag [tag name]
+		just a commit, 
+
+-tag is a branch that doesnt move
+	
+dt@DESKTOP-KOV2D67 MINGW64 ~/dev/gitBrownBag (master)
+$ cat .git/refs/tags/shoes-rob-1
+75147d422b663251ad785d6b6bf1d5a099cc9a64
+
+dt@DESKTOP-KOV2D67 MINGW64 ~/dev/gitBrownBag (master)
+$ git cat-file 75147d422b663251ad785d6b6bf1d5a099cc9a64 -t
+commit
+
+dt@DESKTOP-KOV2D67 MINGW64 ~/dev/gitBrownBag (master)
+$ git cat-file 75147d422b663251ad785d6b6bf1d5a099cc9a64 -p
+tree 7f68b5cd5a953e0e572f84a5e026c8f5c0c867fa
+parent 97111ccf3adaff81692a79bb7c83aa9afcf4e038
+author rdh <rdhjr81@gmail.com> 1496966958 -0400
+committer rdh <rdhjr81@gmail.com> 1496966958 -0400
+
+add rebase notes
