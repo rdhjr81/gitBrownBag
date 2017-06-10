@@ -1,3 +1,4 @@
+-U.S. Prices
 Nike Air Jordans 	179.99
 Reebok Pumps		99.99
 Puma Suede 			59.99
@@ -6,4 +7,14 @@ Sketchers CityWalkers 58.99
 Saucony Grid 10 	99.99
 Asics Gel Ride 		44.99
 Converse Chuck Taylors 39.99
- 
+
+-Europe Prices
+Nike Air Jordans 	99.99 Euros
+Reebok Pumps		74.99 Euros
+Adibas Gazelles		43.92 Euros
+Sketchers CityWalkers 43.12 Euros
+Saucony Grid 10 	99.99 Euros
+Asics Gel Ride 		44.99 Euros
+Converse Chuck Taylors 39.99 Euros
+Dutch Wooden Clogs 	29.99 Euros
+
