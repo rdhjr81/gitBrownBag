@@ -284,3 +284,8 @@ author rdh <rdhjr81@gmail.com> 1496966958 -0400
 committer rdh <rdhjr81@gmail.com> 1496966958 -0400
 
 add rebase notes
+
+----git clone
+
+
+--- git reflog
